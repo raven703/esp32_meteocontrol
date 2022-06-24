@@ -1,8 +1,3 @@
-#import time
-#import gc
-#import os
-#import json
-
 import uasyncio as asyncio
 from microdot_asyncio import Microdot, redirect, send_file, Response
 from machine import Pin, SoftI2C as I2C
