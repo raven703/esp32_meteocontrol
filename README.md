@@ -2,7 +2,6 @@
 Small meteo control for growbox with micropython on ESP32
 
 Using:
-
 for Web Server:
 microdot
 from miguelgrinberg/microdot
@@ -13,7 +12,3 @@ https://www.chartjs.org/
 
 for cool gauges:
 Mikhus/canvas-gauges
-
-
-
-
