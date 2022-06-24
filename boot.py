@@ -3,7 +3,7 @@
 #esp.osdebug(None)
 import webrepl
 import network
-from config import *
+from config import * #import SSID and PASS from here
 from esp8266_i2c_lcd import I2cLcd
 from machine import Pin, SoftI2C as I2C
 from time import sleep
