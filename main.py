@@ -1,10 +1,10 @@
 import uasyncio as asyncio
 import urequests
+import json
 
 from microdot_asyncio import Microdot, redirect, send_file, Response
-from machine import Pin, SoftI2C as I2C, RTC
+from machine import Pin, RTC, ADC
 from htu21d import *
-from esp8266_i2c_lcd import I2cLcd
 from device import *
 
 rtc = RTC()
@@ -24,10 +24,8 @@ def setTime():
          subsecond = int(round(int(datetime_str[20:26]) / 10000))
 
          rtc.datetime((year, month, day, 0, hour, minute, second, subsecond))
-         date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
-         time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
-         print(date_str)
-         print(time_str)
+         #date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+         #time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
          return True
          
     else:
@@ -35,8 +33,8 @@ def setTime():
         return False 
 
 def getRtcTime():
-    date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
-    time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
+    date_str = "{2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+    time_str = "{4:02d}:{5:02d}".format(*rtc.datetime())
     return [date_str, time_str]
         
         
@@ -48,49 +46,68 @@ setTime()
 gy21 = HTU21D(22,21)  #take temp and hum from sensor
 fan = motorDevice(12)
 pump = motorDevice(14)
-print("FAN is: ", fan.status())
-print("PUMP is: ", pump.status())
+
 
 pumpControlPin = Pin(14,Pin.OUT)
-soilMeter = Pin(13,Pin.IN)
 fanControlPin = Pin(12,Pin.OUT)
+soilMeter = ADC(Pin(34), atten=ADC.ATTN_11DB)
 
 pumpControlPin.off()
 fanControlPin.off()
 
 
-async def writeLog():
-    
-    while True: 
-        
-        for pos in range(25):
-            f = open("log.json", "r+")
-            f.seek(pos*6)
-            temper = str(round(gy21.temperature))
-            hum = str(round(gy21.humidity))
-            #print (f.tell(), "pos=", pos)
-            #print(f"Temp: {temper} RH: {hum}")       
-            f.write(temper + "," + hum + ",")
-            f.close()
-            await asyncio.sleep(3000)
+async def writeLog(): # write log for temp, humid and soil. Send data to /chart. Need to have empty .json file at first start. 
+    # json format: 
+    # data = {
+        #        "temper": [],
+        #        "humid": [],
+        #        "soil": []
+        #        "time": []
+        #    }
 
-async def deviceControl():
+    while True: 
+        for pos in range(25):
+            with open ("log2.json", "r") as f:
+                data = json.load(f)
+            date, current_time = getRtcTime()
+            
+            temper = round(gy21.temperature)
+            hum = round(gy21.humidity)
+            soil = soilMeter.read()
+
+            data["temper"][pos] = int(temper)
+            data["humid"][pos] =  int(hum)
+            data["soil"][pos] =  int(soil / 10)
+            data["time"][pos] = current_time
+
+            with open ("log2.json", "r+") as f:
+                json.dump(data, f)
+          
+            await asyncio.sleep(3500)
+
+
+
+async def deviceControl(): #control for pump and fan. Can use auto control and manual
     write_request = True
     last_max_temper = 0
     while True: 
         
         temper = round(gy21.temperature,1)
         hum = round(gy21.humidity,1)
-        if temper < 30: last_max_temper = 30
+        if temper < 30: last_max_temper = 0
+        
         if autoWork and temper > 30:
+            
           
             if temper > last_max_temper:
                 last_max_temper = temper
                 write_request = True
             
             if not fan.status()[0]: fan.start()
+            
             if write_request:
                 with open("log.txt", "a+") as output:
+                   
                     output.write(f'Temp: {temper} {getRtcTime()} \n')
                    
                     if round(gy21.temperature,1) > last_max_temper: 
@@ -112,17 +129,14 @@ async def hello(response):
 
 @app.route('/data', methods=['GET', 'POST'])
 async def data(request):
-    temper = str(round(gy21.temperature, 1))
-    hum = str(round(gy21.humidity,1))
-    return Response(body=[temper, hum, 0, 0], headers = {"Content-Security-Policy-Report-Only" : "script-src 'unsafe-inline'"}) # t, h, LED, Fan
+    temper = round(gy21.temperature, 1)
+    hum = round(gy21.humidity,1)
+    soil = soilMeter.read()/10
+    return Response(body=[temper, hum, soil, 0], headers = {"Content-Security-Policy-Report-Only" : "script-src 'unsafe-inline'"}) # t, h, LED, Fan
 
-@app.route('/chart', methods=['GET', 'POST'])
+@app.route('/chart', methods=['GET', 'POST']) #send log with data for charts. Data prepared by "writeLog()"
 async def chart(request):
-    
-    with open("log.json", "r") as f:
-        result = [i for i in f.readline().strip().split(",") if len(i) > 0]
-                
-    return Response(body=result, headers = {"Content-Security-Policy-Report-Only" : "script-src 'unsafe-inline'"})
+    return send_file("log2.json")
    
     
 
@@ -175,6 +189,18 @@ async def javascript(response):
 @app.route('/gauge.min.js')
 async def gauge(response):
     return send_file('gauge.min.js')
+
+@app.route('/log.txt')
+async def log(request):
+    return send_file('log.txt')
+
+@app.route('/log2.json')
+async def log(request):
+    return send_file('log2.json')
+
+@app.route('/favicon.ico')
+async def favicon(request):
+    return send_file('favicon.ico')    
 
 @app.route('/shutdown')
 async def shutdown(request):

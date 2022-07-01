@@ -20,16 +20,34 @@
   <div class="row">
 
     <div class="col-sm">
-      <div>
-        <h1>External device status</h1>
-          <button class="button" id="pump1" onclick="control(1,0)">Motor Pump: OFF</button>
-          <button class="button" id="fan1" onclick="control(0,1)">Fan: OFF</button><BR>
-        </div>
+      <canvas id="soil" data-type="radial-gauge"
+      data-width="300"
+      data-height="300"
+      data-min-value="90"
+      data-max-value="300"
+      data-major-ticks="90,109,128,147,166,185,204,223,242,261,280,300"
+      data-minor-ticks="2"
+      data-title="Soil Humidity"
+      data-units="%SRH x10"
+      data-value="0"
+      data-value-int="2"
+      data-value-dec="1"
+      data-exact-ticks="False"
+      
+      data-highlights='[
+      { "from": 90, "to": 185, "color": "rgba(0,255,0,.15)" },
+      { "from": 185, "to": 242, "color": "rgba(255,255,0,.15)" },
+      { "from": 242, "to": 300, "color": "rgba(255,0,225,.25)" }
+      
+      ]'
+    ></canvas>
+
+       
 
     </div>
     <div class="col-sm">
     
-      <canvas id="gauge_temp" data-type="radial-gauge"
+    <canvas id="gauge_temp" data-type="radial-gauge"
     data-width="300"
     data-height="300"
     data-max-value="50"
@@ -73,14 +91,27 @@
   ></canvas>
     </div>
     <div class="col-sm">
-      Soil Meter
-    </div>
+
+
+   </div>
   </div>
  
+  <div>
+    <h1>External device status</h1>
+      <button class="button" id="pump1" onclick="control(1,0)">Motor Pump: OFF</button>
+      <button class="button" id="fan1" onclick="control(0,1)">Fan: OFF</button><BR>
+    </div>
+
+
+
   <div class="container">
     <div class="row">
       <div class="col-sm">
 <canvas id="dataChart"></canvas>  
+</div>
+
+<div class="col-sm">
+  <canvas id="dataChart2"></canvas>  
 </div>
 
    
