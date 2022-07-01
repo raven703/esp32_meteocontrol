@@ -13,6 +13,34 @@ async function control(pump, fan)
     
 }
 
+async function showLog(log_type) 
+{
+  if (log_type == "data") {
+    let common_data = await (await fetch("/log2.json")).json();
+    chartDataHumid =  common_data["humid"];
+    chartDataTemper = common_data["temper"];
+    chartDataSoil = common_data["soil"];
+    chartDataTime = common_data["time"];
+    let out_str = chartDataTemper + "/" 
+
+    document.getElementById('log-field').innerHTML = "Temp: " + "\n" + chartDataTemper + "\n" + "RH: " + "\n" + chartDataHumid + "\n" + "SRH: " + "\n" + chartDataSoil;
+  } else if (log_type == "auto") {
+    document.getElementById('log-field').innerHTML = await (await fetch("/log.txt")).text();
+    
+  }
+
+
+
+    let response  = await fetch("/control");
+    let common_data = await response.json();
+    let pump_state = common_data[0]; //[0] pump control; [1] fan control
+    let fan_state = common_data[1];
+    
+    document.getElementById('pump1').innerHTML = "Motor Pump: " + pump_state;
+    document.getElementById('fan1').innerHTML = "Fan: " + fan_state;
+    
+}
+
 
 
 async function drawChartData() {
