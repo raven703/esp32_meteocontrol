@@ -1,9 +1,11 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
 #import esp
 #esp.osdebug(None)
+import json
 import webrepl
 import network
-from config import * #import SSID and PASS from here
+from config import *
+
 from esp8266_i2c_lcd import I2cLcd
 from machine import Pin, SoftI2C as I2C
 from time import sleep
@@ -36,7 +38,10 @@ def do_connect():
     lcd.backlight_off()
     
     
-    
+with open ("log2.json", "w+") as f:
+    json.dump(JSON_LOG_DATA, f)
+
+
 
 do_connect()
 print("Connected")
