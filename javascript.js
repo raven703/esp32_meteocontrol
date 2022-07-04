@@ -1,7 +1,17 @@
 async function control(pump, fan) 
 {
     
-    await fetch("/control" + "?pump_status=" + pump + "&" + "fan_status=" + fan)
+  let auto = document.getElementById('autoMode').checked;
+  let auto_mode = "OFF"
+  if (auto) { 
+    auto_mode = "ON";
+
+  } else {
+    auto_mode="OFF";
+ }
+
+
+    await fetch("/control" + "?pump_status=" + pump + "&" + "fan_status=" + fan + "&" + "auto_mode=" + auto_mode )
     
     let response  = await fetch("/control");
     let common_data = await response.json();
@@ -11,6 +21,20 @@ async function control(pump, fan)
     document.getElementById('pump1').innerHTML = "Motor Pump: " + pump_state;
     document.getElementById('fan1').innerHTML = "Fan: " + fan_state;
     
+}
+
+
+async function autoMode(){
+  let auto = document.getElementById('autoMode').checked;
+  if (auto) { 
+    
+    await fetch("/control" + "?auto_mode=ON");
+
+  } else {
+    await fetch("/control" + "?auto_mode=OFF");
+    
+  }
+  
 }
 
 async function showLog(log_type) 
@@ -44,6 +68,8 @@ async function showLog(log_type)
 
 
 async function drawChartData() {
+// set checkbox
+
     let result = await fetch("\chart");
     let common_data = await result.json();
     chartDataHumid =  common_data["humid"];
@@ -187,6 +213,17 @@ async function getDataFromServer() {
     let temper = common_data[0];
     let humid = common_data[1];
     let soil = common_data[2];
+    let autoMode = common_data[3];
+    localStorage.setItem('autoMode', autoMode);
+   
+
+    if (autoMode == "ON") {
+  document.getElementById("autoMode").checked = true;
+}
+else {
+  document.getElementById("autoMode").checked = false;
+}
+
     document.getElementById("gauge_temp").setAttribute("data-value", temper)
     document.getElementById("humid_temp").setAttribute("data-value", humid.toString())
     document.getElementById("soil").setAttribute("data-value", soil)

@@ -94,7 +94,7 @@ async def emergencyFanOFF(): #counter for emerg shutdown fan or pump in seconds.
         while fan.status()[0]: #fan is on, start count 5 min then turn it off
             counter += 1
             await asyncio.sleep(2) 
-            print("fan running time: ", counter*2)
+            #print("fan running time: ", counter*2)
             if not fan.status()[0]:
                 counter = 0
                 break
@@ -111,7 +111,7 @@ async def emergencyPumpOFF(): #counter for emerg shutdown fan or pump in seconds
         while pump.status()[0]: #pump is on, start count 5 min then turn it off
             counter += 1
             await asyncio.sleep(2) 
-            print("pump running time: ", counter*2)
+            #print("pump running time: ", counter*2)
             if not pump.status()[0]:
                 counter = 0
                 break
@@ -226,6 +226,7 @@ async def control(request):
         return Response(body=[pump_state, fan_state, 0, 0], headers = {"Content-Security-Policy-Report-Only" : "default-src 'self'"}) #
 
     pump_button, fan_button, auto_mode  = params.get('pump_status'), params.get('fan_status'), params.get('auto_mode')
+    print("PARAMS AUTO", params.get('auto_mode'))
     
     if auto_mode == "ON": 
         with open("control.txt", "w+") as output:
