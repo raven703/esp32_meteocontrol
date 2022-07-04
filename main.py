@@ -6,9 +6,10 @@ from microdot_asyncio import Microdot, redirect, send_file, Response
 from machine import Pin, RTC, ADC
 from htu21d import *
 from device import *
+FAN_TIME_COUNTER = 25 #1s * 2
 
 rtc = RTC()
-autoWork = True
+
 
 def setTime():
     url = "http://worldtimeapi.org/api/timezone/Europe/Moscow"
@@ -86,53 +87,118 @@ async def writeLog(): # write log for temp, humid and soil. Send data to /chart.
             await asyncio.sleep(3500)
 
 
+async def emergencyFanOFF(): #counter for emerg shutdown fan or pump in seconds.
+    counter = 0
+    while True:
+        
+        while fan.status()[0]: #fan is on, start count 5 min then turn it off
+            counter += 1
+            await asyncio.sleep(2) 
+            print("fan running time: ", counter*2)
+            if not fan.status()[0]:
+                counter = 0
+                break
+            if counter == FAN_TIME_COUNTER: #counter for emerg shutdown fan or pump in seconds.
+                fan.stop()
+                counter = 0
+        await asyncio.sleep(1) 
 
-async def deviceControl(): #control for pump and fan. Can use auto control and manual
+
+async def emergencyPumpOFF(): #counter for emerg shutdown fan or pump in seconds.
+    counter = 0
+    while True:
+        
+        while pump.status()[0]: #pump is on, start count 5 min then turn it off
+            counter += 1
+            await asyncio.sleep(2) 
+            print("pump running time: ", counter*2)
+            if not pump.status()[0]:
+                counter = 0
+                break
+            if counter == FAN_TIME_COUNTER: #counter for emerg shutdown fan or pump in seconds.
+                pump.stop()
+                counter = 0
+        await asyncio.sleep(1) 
+            
+     
+
+async def deviceControl(): #control for pump and fan. Can use auto control or manual
+    
     write_request = True
     last_max_temper = 0
+    with open("control.txt", "r") as input:   
+        state = input.read()
+    autoMode = state
+    
     while True: 
         
         temper = round(gy21.temperature,1)
         hum = round(gy21.humidity,1)
-        if temper < 30: last_max_temper = 0
+        if temper < 30:
+            last_max_temper = 0
         
-        if autoWork and temper > 30:
+        with open ("log2.json", "r") as f:
+                data = json.load(f)
+        soil_data_len = len([i for i in data["soil"] if i>0])
+        soilData = sum([i for i in data["soil"] if i>0]) / soil_data_len
+                
+
+        with open("control.txt", "r") as input:   
+            state = input.read()
+           
+        if state == "ON": autoMode = True
+        if state == "OFF": autoMode = False
+    
+        if autoMode:
+            print("auto mode ON")
+            if temper > 30:
+                if temper > last_max_temper:
+                    last_max_temper = temper
+                    write_request = True
+                if not fan.status()[0]:
+                    fan.start()
             
-          
-            if temper > last_max_temper:
-                last_max_temper = temper
-                write_request = True
-            
-            if not fan.status()[0]: fan.start()
-            
-            if write_request:
-                with open("log.txt", "a+") as output:
-                   
-                    output.write(f'Temp: {temper} {getRtcTime()} \n')
-                   
+                if write_request:
+                    with open("log.txt", "a+") as output:
+                        output.write(f'Temp: {temper} {getRtcTime()} \n')
                     if round(gy21.temperature,1) > last_max_temper: 
                         write_request = True
-                       
                     else:
                         write_request = False
-                      
-        else:
-            if fan.status()[0]: fan.stop()
+            if temper <30 :
+                fan.stop()
+                write_request = True
             
-            write_request = True
+            
+            if 240 > soilData > 128:
+                print(soilData, "ALERT NEED WATER !!!!")
+
+            
+            
+            
+
+            else:
+            #if fan.status()[0]:
+            #    fan.stop()
+                write_request = True
         
         await asyncio.sleep(5)
     
 @app.route('/')
-async def hello(response):
+async def index(response):
     return send_file("sensors2.html")
 
 @app.route('/data', methods=['GET', 'POST'])
 async def data(request):
+    await asyncio.sleep(1)
+    with open("control.txt", "r") as input:   
+        state = input.read()
+    autoMode = state
+
     temper = round(gy21.temperature, 1)
     hum = round(gy21.humidity,1)
     soil = soilMeter.read()/10
-    return Response(body=[temper, hum, soil, 0], headers = {"Content-Security-Policy-Report-Only" : "script-src 'unsafe-inline'"}) # t, h, LED, Fan
+    return Response(body=[temper, hum, soil, autoMode], headers = {"Content-Security-Policy-Report-Only" : "script-src 'unsafe-inline'"}) # t, h, LED, Fan
 
 @app.route('/chart', methods=['GET', 'POST']) #send log with data for charts. Data prepared by "writeLog()"
 async def chart(request):
@@ -159,8 +225,16 @@ async def control(request):
     if len(params) == 0:
         return Response(body=[pump_state, fan_state, 0, 0], headers = {"Content-Security-Policy-Report-Only" : "default-src 'self'"}) #
 
-    pump_button, fan_button = params.get('pump_status'), params.get('fan_status')
-        
+    pump_button, fan_button, auto_mode  = params.get('pump_status'), params.get('fan_status'), params.get('auto_mode')
+    
+    if auto_mode == "ON": 
+        with open("control.txt", "w+") as output:
+            output.write("ON")
+
+    else:
+        with open("control.txt", "w+") as output:
+            output.write("OFF")
+            
     if pump_button == "1":
         if pumpControlPin.value() == 0:
             pumpControlPin.value(1)
@@ -213,8 +287,15 @@ async def main():
     task1 = asyncio.create_task(app.start_server(port=80, debug=False))
     task2 = asyncio.create_task(writeLog())
     task3 = asyncio.create_task(deviceControl())
+    task4 = asyncio.create_task(emergencyFanOFF())
+    task5 = asyncio.create_task(emergencyPumpOFF())
     await task1
     await task2
     await task3
+    await task4
+    await task5
     
-asyncio.run(main())
+try:
+    asyncio.run(main())
+finally:
+    asyncio.new_event_loop()  # Clear retained state
