@@ -1,0 +1,34 @@
+.checkbox__input:checked + .checkbox__icon .tick {
+       stroke-dashoffset: 0;
+  }
+
+.checkbox {
+      cursor: pointer;
+     display: flex;
+    align-items: center;
+  }
+  
+  .checkbox__input {
+    position: absolute;
+      width: 1.375em;
+    height: 1.375em;
+      opacity: 0;
+       cursor: pointer;
+  }
+  
+  .checkbox__icon {
+     width: 1.375em;
+    height: 1.375em;
+     flex-shrink: 0;
+     overflow: visible;
+  }
+  .checkbox__icon .tick {
+  
+    stroke-dasharray: 20px;
+     stroke-dashoffset: 20px;
+    transition: stroke-dashoffset 0.2s ease-out;
+  }
+  
+  .checkbox_label {
+    margin-left: 15px;
+  }

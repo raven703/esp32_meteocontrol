@@ -8,7 +8,7 @@
     <script src="javascript.js" defer></script>
     <script src="gauge.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
-
+    <link rel="stylesheet" type="text/css" href="local.css">
 
      
 </head>
@@ -97,7 +97,25 @@
   </div>
  
   <div>
+
+    <div class="form-check">
+      <label for="autoMode" class="checkbox" >
+      <input class="checkbox__input" type="checkbox" value="" id="autoMode" onclick="autoMode()">
+      <svg class="checkbox__icon" viewBox="0 0 22 22">
+        <!-- рисуем красивую рамку чекбокса -->
+        <rect width="21" height="21" x=".5" y=".5" fill="#FFF" stroke="#006F94" rx="3" />
+        <!-- сразу делаем красивую галочку, но пока делаем её невидимой -->
+       
+        <path class="tick" stroke="#6EA340" fill="none" stroke-linecap="round" stroke-width="4" d="M4 10l5 5 9-9" />
+      </svg>
+
+      
+        <span class = "checkbox_label"> Auto Mode </span>
+      </label>
+    </div>
+
     <h5>External device status</h5>
+
       <button class="button" id="pump1" onclick="control(1,0)">Motor Pump: OFF</button>
       <button class="button" id="fan1" onclick="control(0,1)">Fan: OFF</button><BR>
     </div>
@@ -124,7 +142,7 @@
     <div class="col-sm">
       <div class="mb-3">
         <label for="log-field" class="form-label">Press button to show log</label>
-        <textarea class="form-control" id="log-field" rows="3"></textarea>
+        <textarea class="form-control" id="log-field" rows="3"> </textarea>
       </div>
       <button class="button" id="show-log-auto" onclick="showLog('auto')">Show AUTO Log</button>
       <button class="button" id="show-log-data" onclick="showLog('data')">Show DATA Log</button>
@@ -156,6 +174,7 @@
   </ul>
 </footer>
 </div>
+
 
 
 

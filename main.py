@@ -67,24 +67,30 @@ async def writeLog(): # write log for temp, humid and soil. Send data to /chart.
         #    }
 
     while True: 
-        for pos in range(25):
-            with open ("log2.json", "r") as f:
-                data = json.load(f)
+        with open ("log2.json", "r") as f:
+            data = json.load(f)
             date, current_time = getRtcTime()
             
-            temper = round(gy21.temperature)
-            hum = round(gy21.humidity)
-            soil = soilMeter.read()
+        temper = round(gy21.temperature)
+        hum = round(gy21.humidity)
+        soil = soilMeter.read()
+        
+        
 
-            data["temper"][pos] = int(temper)
-            data["humid"][pos] =  int(hum)
-            data["soil"][pos] =  int(soil / 10)
-            data["time"][pos] = current_time
+        # write last value to the last index
+        data["temper"].pop(0)
+        data["temper"].append(int(temper))
+        data["humid"].pop(0)
+        data["humid"].append(int(hum))
+        data["soil"].pop(0)
+        data["soil"].append(int(soil /10 ))
+        data["time"].pop(0)
+        data["time"].append(current_time)
 
-            with open ("log2.json", "r+") as f:
-                json.dump(data, f)
+        with open ("log2.json", "r+") as f:
+            json.dump(data, f)
           
-            await asyncio.sleep(3500)
+        await asyncio.sleep(3200)
 
 
 async def emergencyFanOFF(): #counter for emerg shutdown fan or pump in seconds.
@@ -140,7 +146,8 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
         with open ("log2.json", "r") as f:
                 data = json.load(f)
         soil_data_len = len([i for i in data["soil"] if i>0])
-        soilData = sum([i for i in data["soil"] if i>0]) / soil_data_len
+        if soil_data_len > 0:
+            soilData = sum([i for i in data["soil"] if i>0]) / soil_data_len
                 
 
         with open("control.txt", "r") as input:   
@@ -172,10 +179,6 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
             
             if 240 > soilData > 128:
                 print(soilData, "ALERT NEED WATER !!!!")
-
-            
-            
-            
 
             else:
             #if fan.status()[0]:
@@ -223,7 +226,9 @@ async def control(request):
         fan_state = "ON"
 
     if len(params) == 0:
-        return Response(body=[pump_state, fan_state, 0, 0], headers = {"Content-Security-Policy-Report-Only" : "default-src 'self'"}) #
+        with open("control.txt", "r") as input:   
+            autoMode = input.read()
+        return Response(body=[pump_state, fan_state, autoMode, 0], headers = {"Content-Security-Policy-Report-Only" : "default-src 'self'"}) #
 
     pump_button, fan_button, auto_mode  = params.get('pump_status'), params.get('fan_status'), params.get('auto_mode')
     print("PARAMS AUTO", params.get('auto_mode'))
@@ -276,6 +281,11 @@ async def log(request):
 @app.route('/favicon.ico')
 async def favicon(request):
     return send_file('favicon.ico')    
+
+@app.route('/local.css')
+async def local_css(request):
+    return send_file('local.css')  
+
 
 @app.route('/shutdown')
 async def shutdown(request):
