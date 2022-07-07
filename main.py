@@ -147,7 +147,8 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
                 data = json.load(f)
         soil_data_len = len([i for i in data["soil"] if i>0])
         if soil_data_len > 0:
-            soilData = sum([i for i in data["soil"] if i>0]) / soil_data_len
+            soilData = int(sum(data["soil"][:-4:-1]) / len(data["soil"][:-4:-1]))
+        
                 
 
         with open("control.txt", "r") as input:   
@@ -177,7 +178,7 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
                 write_request = True
             
             
-            if 240 > soilData > 128:
+            if soilData > 190:
                 print(soilData, "ALERT NEED WATER !!!!")
 
             else:
@@ -299,12 +300,12 @@ async def main():
     task2 = asyncio.create_task(writeLog())
     task3 = asyncio.create_task(deviceControl())
     task4 = asyncio.create_task(emergencyFanOFF())
-    task5 = asyncio.create_task(emergencyPumpOFF())
+    #task5 = asyncio.create_task(emergencyPumpOFF())
     await task1
     await task2
     await task3
     await task4
-    await task5
+    #await task5
     
 try:
     asyncio.run(main())
