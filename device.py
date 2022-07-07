@@ -24,12 +24,19 @@ class motorDevice():
             return True
         else:
             return False
-        
+    
     def status(self):
         if self.pinControl.value() == 1:
             return [True, "Running"]
         else:
             return [False, "Stopped"]
+    
+    def running(self):
+        if self.pinControl.value() == 1:
+            return True
+        else:
+            return False
+
 
     
     def value(self):

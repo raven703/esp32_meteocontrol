@@ -132,6 +132,8 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
     
     write_request = True
     last_max_temper = 0
+    last_max_hum = 0
+
     with open("control.txt", "r") as input:   
         state = input.read()
     autoMode = state
@@ -142,6 +144,8 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
         hum = round(gy21.humidity,1)
         if temper < 30:
             last_max_temper = 0
+        if hum < 50:
+            last_max_hum = 0
         
         with open ("log2.json", "r") as f:
                 data = json.load(f)
@@ -149,8 +153,6 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
         if soil_data_len > 0:
             soilData = int(sum(data["soil"][:-4:-1]) / len(data["soil"][:-4:-1]))
         
-                
-
         with open("control.txt", "r") as input:   
             state = input.read()
            
@@ -173,10 +175,30 @@ async def deviceControl(): #control for pump and fan. Can use auto control or ma
                         write_request = True
                     else:
                         write_request = False
-            if temper <30 :
+            if temper <30 and not fan.running():
+                
                 fan.stop()
                 write_request = True
+
+            if hum > 70:
+                if hum > last_max_hum:
+                    last_max_hum = hum
+                    write_request = True
+                if not fan.status()[0]:
+                    fan.start()
             
+                if write_request:
+                    with open("log.txt", "a+") as output:
+                        output.write(f'Hum: {hum} {getRtcTime()} \n')
+                    if round(gy21.humidity,1) > last_max_hum: 
+                        write_request = True
+                    else:
+                        write_request = False
+            if hum <60 and not fan.running():
+                
+                fan.stop()
+                write_request = True
+
             
             if soilData > 190:
                 print(soilData, "ALERT NEED WATER !!!!")
@@ -232,7 +254,7 @@ async def control(request):
         return Response(body=[pump_state, fan_state, autoMode, 0], headers = {"Content-Security-Policy-Report-Only" : "default-src 'self'"}) #
 
     pump_button, fan_button, auto_mode  = params.get('pump_status'), params.get('fan_status'), params.get('auto_mode')
-    print("PARAMS AUTO", params.get('auto_mode'))
+    #print("PARAMS AUTO", params.get('auto_mode'))
     
     if auto_mode == "ON": 
         with open("control.txt", "w+") as output:
