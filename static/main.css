@@ -1,0 +1,19 @@
+/* CSS */
+header {
+  margin-bottom: 10px;
+  
+}
+
+.space {
+  margin-right: 5px;
+}
+
+.divider {
+    border-left: 1px solid #38546d; 
+    border-right: 1px solid #16222c; 
+    height: 100%;
+    background-color: #00c3ff17;
+    box-shadow: 5px 10px 10px 5px white;
+    width: 20px;
+  }
+
