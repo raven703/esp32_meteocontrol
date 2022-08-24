@@ -111,7 +111,7 @@ function convertFormData(formData) {
       let humid_high = params['humid_high'];
       let soil = params['soil'];
       let run_time = params['run_time']
-      let period_time = params['period_time']
+      let period_time = params['period_time'] 
       let dev_name1 = sessionStorage.getItem('device1_name');
       let dev_name2 = sessionStorage.getItem('device2_name');
       document.getElementById('autoMode').checked
@@ -198,7 +198,7 @@ function convertFormData(formData) {
       document.getElementById('device2_name').value = config['device2_name'];
       document.getElementById('ssid').value = wifi['SSID']
       document.getElementById('run_time').value = config['dev2_runtime']
-      document.getElementById('period_time').value = config['dev2_period']
+      document.getElementById('period_time').value = Number(config['dev2_period']) / 60
 
 
       if (wifi['DEFAULT_WIFI_MODE'] == 'station') {

@@ -325,24 +325,24 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                 if DEBUG: print("Temp exceed threshold")
                 if temper > last_max_temper:
                     last_max_temper = temper
-                    write_request = True
+                    #write_request = True
 
                 # if not device1.running():
                 #    device1.start()
             
-                if write_request:
-                    with open("log.txt", "w") as output:
-                        output.write(f'Temp: {temper} {getRtcTime()} \n')
-                    if temper > last_max_temper: 
-                        write_request = True
-                    else:
-                        write_request = False
+                #if write_request:
+                    #with open("log.txt", "w") as output:
+                    #    output.write(f'Temp: {temper} {getRtcTime()} \n')
+                    #if temper > last_max_temper: 
+                    #    write_request = True
+                    #else:
+                     #   write_request = False
 
             if temper < th_temper: 
                 
                 #device1.stop()
                 if DEBUG: print("Temp below threshold")
-                write_request = True
+                #write_request = True
             
             if hum > th_humid_high:
                 if hum > last_max_hum:
@@ -352,31 +352,32 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                 if not device1.running():                   
                     device1.start()
             
-                if write_request:
-                    with open("log.txt", "w") as output:
-                        output.write(f'Hum: {hum} {getRtcTime()} \n')
-                    if hum > last_max_hum: 
-                        write_request = True
-                    else:
-                        write_request = False
+               # if write_request:
+                 #   with open("log.txt", "w") as output:
+                 #       output.write(f'Hum: {hum} {getRtcTime()} \n')
+                  #  if hum > last_max_hum: 
+                  #      write_request = True
+                  #  else:
+                   #     write_request = False
            
             if hum < th_humid_low: # or temper < th_temper :
                 if DEBUG: print("Humidity below threshold")
                 device1.stop()
-                write_request = True
+                #write_request = True
  
             if soilData > autoModeCtrl.th_soil:
                 print("raw soil sensor", soilMeter.read(), "ALERT NEED WATER !!!!")
                 time_now = time.time()
-                
-                if DEBUG: print('DEVICE2_PERIOD_TIMER', DEVICE2_PERIOD_TIMER)
+          
                 if time_now - device2.periodStartTime < DEVICE2_PERIOD_TIMER:
-                    
-                    print('auto device2, waiting to start', DEVICE2_PERIOD_TIMER - (time_now - device2.periodStartTime))
+                    if DEBUG: print('auto device2, waiting to start', DEVICE2_PERIOD_TIMER - (time_now - device2.periodStartTime))
                 elif time_now - device2.periodStartTime > DEVICE2_PERIOD_TIMER:
                     if DEBUG: print("starting")
                     device2.periodStartTime = time.time()
                     device2.start()
+                    with open("log.txt", "w") as output:
+                        output.write(f'Last time device2 started: {getRtcTime()} \n')
+
 
 
             else:
