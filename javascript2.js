@@ -62,8 +62,8 @@ async function getDataFromServer() {
       document.getElementById("time").innerHTML = time;
       document.getElementById("date").innerHTML = date;
         
-      document.getElementById("device1_name").innerHTML = device1_name;
-      document.getElementById("device2_name").innerHTML = device2_name;
+      document.getElementById("device1_name_card").innerHTML = device1_name;
+      document.getElementById("device2_name_card").innerHTML = device2_name;
        
         if (device1Status) {
         document.getElementById("device_1_on").classList.add("btn", "btn-success");
@@ -140,8 +140,11 @@ function convertFormData(formData) {
       let soil = sessionStorage.getItem('soil_meter');
       let dev_name1 = params['device1_name'];
       let dev_name2 = params['device2_name'];
+      let time = params['time'];
+      let date = params['date'];
+      
       fetch(`/config.json?save=1&h_temper=${temper}&th_humid_low=${humid_low}&th_humid_high=${humid_high}&th_soil=${soil}\
-  &dev_name1=${dev_name1}&dev_name2=${dev_name2}`);
+      &dev_name1=${dev_name1}&dev_name2=${dev_name2}&dev_time=${time}&dev_date=${date}`);
       alert('Settings saved');
   
            

@@ -5,12 +5,16 @@ import json
 import time
 import webrepl
 import network
+import urequests
 from ssd1306 import SSD1306_I2C
 from config import *
 
 
-from machine import Pin, SoftI2C as I2C
-from time import sleep
+from machine import Pin, SoftI2C as I2C, RTC
+rtc = RTC()
+
+
+
 
 i2c = I2C(scl=Pin(22), sda=Pin(21), freq=400000) #setup I2C
 display = SSD1306_I2C(128, 32, i2c) #init oled driver
@@ -18,7 +22,27 @@ display.fill(0)
 display.text('Initializing...', 0, 0, 1) # text, x, y, pixel_state
 display.show()
 
+def setTime():
+    url = "http://worldtimeapi.org/api/timezone/Europe/Moscow"
+    
+    try:
+        response = urequests.get(url)
+        datetime_str = str(response.json()["datetime"])
+        year = int(datetime_str[0:4])
+        month = int(datetime_str[5:7])
+        day = int(datetime_str[8:10])
+        hour = int(datetime_str[11:13])
+        minute = int(datetime_str[14:16])
+        second = int(datetime_str[17:19])
+        subsecond = int(round(int(datetime_str[20:26]) / 10000))
 
+        rtc.datetime((year, month, day, 0, hour, minute, second, subsecond))
+        #date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+        #time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
+    except OSError:
+        print("error in internet connection")
+        print("Time is not set, using zero defaults")
+        rtc.datetime((2022, 1, 1, 0, 1, 1, 1, 1))
 
 def start_connect_point():
     
@@ -102,4 +126,5 @@ elif settings['DEFAULT_WIFI_MODE'] == 'point':
 
 
 webrepl.start()
+setTime()
 

@@ -2,7 +2,7 @@ import time
 import uftpd
 
 import uasyncio as asyncio
-import urequests
+
 import json
 
 from microdot_asyncio import Microdot, redirect, send_file, Response, Request
@@ -22,32 +22,14 @@ display = SSD1306_I2C(128, 32, i2c) #init oled driver
 Request.max_content_length = 1024 * 1024
 Request.max_body_length = 1024 * 1024
 
-def setTime():
-    url = "http://worldtimeapi.org/api/timezone/Europe/Moscow"
-    
-    try:
-        response = urequests.get(url)
-        datetime_str = str(response.json()["datetime"])
-        year = int(datetime_str[0:4])
-        month = int(datetime_str[5:7])
-        day = int(datetime_str[8:10])
-        hour = int(datetime_str[11:13])
-        minute = int(datetime_str[14:16])
-        second = int(datetime_str[17:19])
-        subsecond = int(round(int(datetime_str[20:26]) / 10000))
 
-        rtc.datetime((year, month, day, 0, hour, minute, second, subsecond))
-        #date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
-        #time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
-    except OSError:
-        print("error in internet connection")
-        print("Time is not set, using zero defaults")
-        rtc.datetime((2022, 1, 1, 0, 1, 1, 1, 1))
+
 def getRtcTime():
     date_str = "{2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
     time_str = "{4:02d}:{5:02d}".format(*rtc.datetime())
-    return [date_str, time_str]    
-setTime()
+    return [date_str, time_str]  
+
+
 
 class stream(): #async generator for server side events
     def __init__(self):
@@ -67,8 +49,9 @@ class stream(): #async generator for server side events
 
         with open("config.json", "r") as json_data: #load config from json file and read names for devices
              self.config = json.load(json_data)
-        self.data['Names']['device1_name'] = self.config['device1_name']
-        self.data['Names']['device2_name'] = self.config['device2_name']
+        self.data['Names']['device1_name'] = device1.name = self.config['device1_name']
+        self.data['Names']['device2_name'] = device2.name = self.config['device2_name']
+         
         if "True" in self.config['auto']:
             autoModeCtrl.status = True
         else:
@@ -439,15 +422,34 @@ async def config(request):
            "lamp": params.get("th_lamp") if params.get("th_lamp") is not None else 0,
            "device1_name": params.get("dev_name1") if params.get("dev_name1") is not None else "noname1",
            "device2_name": params.get("dev_name2") if params.get("dev_name1") is not None else "noname2",
+           "dev_time":params.get('dev_time'),
+           "dev_date":params.get('dev_date') 
+
            }
         
-        with open ("config.json", "w+") as file:
-            json.dump(config_data, file)
+        
+
         device1.name, device2.name = params.get("dev_name1"), params.get("dev_name2")
         autoModeCtrl.th_soil = int(config_data['soil'])
-      
 
 
+        if params.get('dev_time') is not None:
+            time = params.get('dev_time')
+            date = params.get('dev_date')
+            year = int(date[0:4])
+            month = int(date[5:7])
+            day = int(date[8::])
+            hour = int(time[0:2])
+            minute = int(time[3:5])
+            rtc.datetime((year, month, day, 0, hour, minute, 0, 0))
+        else:
+            date, time = getRtcTime()
+            config_data['dev_time']=time
+            config_data['dev_date']=f'{date[-4::]}-{date[3:5]}-{date[0:2]}' #convert to datetime notation yy-mm-dt
+       
+        with open ("config.json", "w+") as file:
+            json.dump(config_data, file) 
+     
         return send_file('config.json')
     
     else:

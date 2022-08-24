@@ -10,7 +10,7 @@
 
         <script src="javascript2.js"></script>
 <!--        <link href="\static\bootstrap.min.css" rel="stylesheet" />-->
-        <link href="main.css" rel="stylesheet" />
+        <link href="\static\main.css" rel="stylesheet" />
        
     </head>
 
@@ -39,14 +39,14 @@
                
                   <div class="card shadow-sm mb-1 bg-white rounded text-center">
                     <div class="card-body">
-                      <h5 class="card-title">Sensor Temp, C</h5>
+                      <h4 class="card-title">Sensor Temp, C</h4>
                       <p id="temperature" class="card-text fs-2">temp</p>
                     </div>
                   </div>
 
                   <div class="card shadow-sm mb-1 bg-white rounded text-center">
                     <div class="card-body">
-                     <h5 class="card-title">Sensor humid, RH</h5>
+                     <h4 class="card-title">Sensor humid, RH</h4>
                      <p id="humidity" class="card-text fs-2">hum</p>
                   
                     </div>
@@ -54,7 +54,7 @@
       
                   <div class="card shadow-sm mb-1 bg-white rounded text-center">
                     <div class="card-body">
-                     <h5 class="card-title">Soil humid, RSH</h5>
+                     <h4 class="card-title">Soil humid, RSH</h4>
                      <p id="soil_hum" class="card-text fs-2">soil</p>
                     </div>
                   </div>
@@ -63,7 +63,7 @@
 <div class = "d-flex ">
                   <div class="card shadow-sm bg-white rounded text-center">
                     <div class="card-body">
-                     <h5 id= "device1_name" class="card-title">Device 1</h5>
+                     <h4 id= "device1_name_card" class="card-title">Device 1</h4>
                      <!-- <p id="device1Status" class="card-text fs-2">device1Status</p> -->
                     <button class="button" id="device_1_on" onclick="control('device1','ON')">ON</button>
                     <button class="button" id="device_1_off" onclick="control('device1','OFF')">OFF</button>
@@ -73,7 +73,7 @@
 
                   <div class="card shadow-sm bg-white rounded text-center">
                     <div class="card-body">
-                     <h5 id="device2_name" class="card-title">Device 2</h5>
+                     <h4 id="device2_name_card" class="card-title">Device 2</h4>
                      <!--<p id="device2Status" class="card-text fs-2">device2Status</p> -->
                        <button class="button" id="device_2_on" onclick="control('device2','ON')">ON</button>
                     <button class="button" id="device_2_off" onclick="control('device2','OFF')">OFF</button>
@@ -84,6 +84,7 @@
 <div class = "divider">
 
 </div>
+
      <div class="d-flex d-row d-wrap ">
 
             <div class="space">
@@ -94,16 +95,16 @@
                 
                         <div class="form-outline mb-4">
                       <label class="form-label" for="temp_max">Temp, C, MAX</label>
-                      <input type="number" id="temp_max" name="temper" class="form-control"> 
+                      <input type="number" required="required" id="temp_max" name="temper" class="form-control"> 
                       <br>
                       <label class="form-label" for="hum_low">Humidity LOW</label>
-                      <input type="number" id="hum_low" name="humid_low" class="form-control"> 
+                      <input type="number" required="required" id="hum_low" name="humid_low" class="form-control"> 
                       <br>
                       <label class="form-label" for="hum_max">Humidity MAX</label>
-                      <input type="number" id="hum_max" name="humid_high" class="form-control" > 
+                      <input type="number" required="required" id="hum_max" name="humid_high" class="form-control" > 
                       <br>
                       <label class="form-label" for="soil_meter">Soil meter</label>
-                      <input type="number" id="soil_meter" name="soil" class="form-control" > <br>
+                      <input type="number" required="required" id="soil_meter" name="soil" class="form-control" > <br>
                    
                 
                      <label class="form-check-label" for="autoMode">Auto mode</label>
@@ -144,10 +145,10 @@
                    <div class="form-outline mb-4">
                       
                         <label class="form-label" for="ssid_name">SSID Name</label>
-                        <input type="text" id="ssid" name="ssid" class="form-control" > <br>
+                        <input type="text" required="required" id="ssid" name="ssid" class="form-control" > <br>
                     
                         <label class="form-label" for="ssid_pass">SSID Password</label>
-                        <input type="text" id="ssid_pass" name="ssid_pass" class="form-control" > <br>
+                        <input type="text" required="required" id="ssid_pass" name="ssid_pass" class="form-control" > <br>
                         <br>
                         
                         <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
@@ -166,13 +167,26 @@
             
                     <div class="form-outline mb-4">
                       
-                        <label class="form-label" for="device_name1">Device 1</label>
-                         <input type="text" id="device1_name" name="device1_name" class="form-control"> <br>
+                        <label class="form-label" for="device_name1" >Device 1</label>
+                         <input type="text" required="required" id="device1_name" name="device1_name" class="form-control"> <br>
                     
-                        <label class="form-label" for="device_name2">Device 2</label>
-                    
-                         <input type="text" id="device2_name" name="device2_name" class="form-control"> <br>
+                        <label class="form-label" for="device_name2" >Device 2</label>
+                        <input type="text" required="required" id="device2_name" name="device2_name" class="form-control"> <br>
                         <br>
+
+                        <div class="d-timedate">
+                          <div>
+                        <label class="form-label" for="time">Time</label>
+                        <input type="time" required="required" id="time" name="time" class="form-control"> 
+                        </div>
+                        <div>
+                        <label class="form-label" for="date">Date</label>
+                        <input type="date" required="required" id="time" name="date" class="form-control"> 
+                        
+                      </div>
+                      </div>
+
+
                         
                         <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
                     </div>
