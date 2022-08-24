@@ -110,6 +110,8 @@ function convertFormData(formData) {
       let humid_low = params['humid_low'];
       let humid_high = params['humid_high'];
       let soil = params['soil'];
+      let run_time = params['run_time']
+      let period_time = params['period_time']
       let dev_name1 = sessionStorage.getItem('device1_name');
       let dev_name2 = sessionStorage.getItem('device2_name');
       document.getElementById('autoMode').checked
@@ -119,7 +121,7 @@ function convertFormData(formData) {
      
       
       fetch(`/config.json?save=1&h_temper=${temper}&th_humid_low=${humid_low}&th_humid_high=${humid_high}&th_soil=${soil}\
-  &dev_name1=${dev_name1}&dev_name2=${dev_name2}&auto=${autoMode}`);
+  &dev_name1=${dev_name1}&dev_name2=${dev_name2}&auto=${autoMode}&run_time=${run_time}&period_time=${period_time}`);
   alert('Settings saved');
   
   
@@ -195,6 +197,9 @@ function convertFormData(formData) {
       document.getElementById('device1_name').value = config['device1_name'];
       document.getElementById('device2_name').value = config['device2_name'];
       document.getElementById('ssid').value = wifi['SSID']
+      document.getElementById('run_time').value = config['dev2_runtime']
+      document.getElementById('period_time').value = config['dev2_period']
+
 
       if (wifi['DEFAULT_WIFI_MODE'] == 'station') {
         document.getElementById('station_mode').checked = true

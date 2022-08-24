@@ -13,7 +13,7 @@ from device import *
 DEVICE1_TIMER = 20 #timer in seconds, switch off after this period
 DEVICE2_TIMER = 10 #timer in seconds, switch off after this period
 DEVICE2_PERIOD_TIMER = 18000 #in seconds, period for pump activation (device2)
-
+DEBUG = False
 
 rtc = RTC()
 
@@ -74,14 +74,14 @@ class stream(): #async generator for server side events
             self.temper = round(gy21.temperature)
             gy21.LAST_VALUE_TEMP = self.temper
         except:
-            #print('! exception ! TEMP Error')
+            if DEBUG: print('! exception ! TEMP Error')
             self.temper = gy21.LAST_VALUE_TEMP 
 
         try:
             self.hum = round(gy21.humidity)
             gy21.LAST_VALUE_HU = self.hum
         except:
-           #print('! exception ! HUM Error')
+           if DEBUG: print('! exception ! HUM Error')
            self.hum = gy21.LAST_VALUE_HU 
 
         date, current_time = getRtcTime()
@@ -140,14 +140,14 @@ def button1_click_func(): #function for button1
             temper = round(gy21.temperature)
             gy21.LAST_VALUE_TEMP = temper
         except:
-            print('! exception ! TEMP Error')
+          
             temper = gy21.LAST_VALUE_TEMP 
 
         try:
             hum = round(gy21.humidity)
             gy21.LAST_VALUE_HU = hum
         except:
-           print('! exception ! HUM Error')
+         
            hum = gy21.LAST_VALUE_HU 
 
     
@@ -197,14 +197,14 @@ async def writeLog(): # write log for temp, humid and soil. Send data to /chart.
             temper = round(gy21.temperature)
             gy21.LAST_VALUE_TEMP = temper
         except:
-            print('! exception ! TEMP Error')
+          
             temper = gy21.LAST_VALUE_TEMP 
 
         try:
             hum = round(gy21.humidity)
             gy21.LAST_VALUE_HU = hum
         except:
-           print('! exception ! HUM Error')
+         
            hum = gy21.LAST_VALUE_HU 
 
         soil = soilMeter.read()
@@ -238,19 +238,19 @@ async def emergencyDeviceControl(): #counter for emerg shutdown DEVICE1 or DEVIC
 
         if device1.running():
             time_now = time.time()
-            print('Device1 autooff in: ', DEVICE1_TIMER - round(time_now - device1.startTime))
+            if DEBUG: print('Device1 autooff in: ', DEVICE1_TIMER - round(time_now - device1.startTime))
             
             if time_now - device1.startTime > DEVICE1_TIMER:
-                print('time reached')
+                if DEBUG: print('time reached')
                 device1.stop()
 
 
         if device2.running():
             time_now = time.time()
-            print('Device2 autooff in: ', DEVICE2_TIMER - round(time_now - device2.startTime))
+            if DEBUG: print('Device2 autooff in: ', DEVICE2_TIMER - round(time_now - device2.startTime))
             
             if time_now - device2.startTime > DEVICE2_TIMER:
-                print('time reached')
+                if DEBUG: print('time reached')
                 device2.stop()
            
         await asyncio.sleep(2) 
@@ -287,19 +287,20 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
 
     
     while True: 
+  
         
         try:
             temper = round(gy21.temperature)
             gy21.LAST_VALUE_TEMP = temper
         except:
-            #print('! exception ! TEMP Error')
+            if DEBUG: print('! exception ! TEMP Error')
             temper = gy21.LAST_VALUE_TEMP 
 
         try:
             hum = round(gy21.humidity)
             gy21.LAST_VALUE_HU = hum
         except:
-           #print('! exception ! HUM Error')
+           if DEBUG: print('! exception ! HUM Error')
            hum = gy21.LAST_VALUE_HU 
 
         if temper < th_temper:
@@ -321,7 +322,7 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
         if autoMode:
           
             if temper > th_temper:
-                #print("Temp exceed threshold")
+                if DEBUG: print("Temp exceed threshold")
                 if temper > last_max_temper:
                     last_max_temper = temper
                     write_request = True
@@ -340,14 +341,14 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
             if temper < th_temper: 
                 
                 #device1.stop()
-                #print("Temp below threshold")
+                if DEBUG: print("Temp below threshold")
                 write_request = True
             
             if hum > th_humid_high:
                 if hum > last_max_hum:
                     last_max_hum = hum
                     write_request = True
-                #print("Humidity exceed threshold")
+                if DEBUG: print("Humidity exceed threshold")
                 if not device1.running():                   
                     device1.start()
             
@@ -360,7 +361,7 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                         write_request = False
            
             if hum < th_humid_low: # or temper < th_temper :
-                #print("Humidity below threshold")
+                if DEBUG: print("Humidity below threshold")
                 device1.stop()
                 write_request = True
  
@@ -368,12 +369,12 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                 print("raw soil sensor", soilMeter.read(), "ALERT NEED WATER !!!!")
                 time_now = time.time()
                 
-                #print('DEVICE2_PERIOD_TIMER', DEVICE2_PERIOD_TIMER)
+                if DEBUG: print('DEVICE2_PERIOD_TIMER', DEVICE2_PERIOD_TIMER)
                 if time_now - device2.periodStartTime < DEVICE2_PERIOD_TIMER:
                     
                     print('auto device2, waiting to start', DEVICE2_PERIOD_TIMER - (time_now - device2.periodStartTime))
                 elif time_now - device2.periodStartTime > DEVICE2_PERIOD_TIMER:
-                    print("starting")
+                    if DEBUG: print("starting")
                     device2.periodStartTime = time.time()
                     device2.start()
 
@@ -409,6 +410,8 @@ async def static(request, path):
  
 @app.route('/config.json', methods=['GET', 'POST'] ) #here we save and load config data to server
 async def config(request):
+    global DEVICE2_TIMER
+    global DEVICE2_PERIOD_TIMER
     params = request.args #request args from GET
     # config.json?save=1&h_temper=30&th_humid_low=60&th_humid_high=70&th_soil=190&th_lamp=OFF&dev_name1=test1&dev_name2=test2 
     if "save" in params:
@@ -423,14 +426,22 @@ async def config(request):
            "device1_name": params.get("dev_name1") if params.get("dev_name1") is not None else "noname1",
            "device2_name": params.get("dev_name2") if params.get("dev_name1") is not None else "noname2",
            "dev_time":params.get('dev_time'),
-           "dev_date":params.get('dev_date') 
-
+           "dev_date":params.get('dev_date'),
+           "dev2_runtime":int(params.get('run_time')) if params.get('run_time') is not None else DEVICE2_TIMER,
+           "dev2_period":int(params.get('period_time')) if params.get('period_time') is not None else DEVICE2_PERIOD_TIMER
            }
         
         
 
         device1.name, device2.name = params.get("dev_name1"), params.get("dev_name2")
         autoModeCtrl.th_soil = int(config_data['soil'])
+
+        if params.get('run_time') is not None:
+            
+            DEVICE2_TIMER = int(params.get('run_time'))
+            DEVICE2_PERIOD_TIMER = int(params.get('period_time')) * 60
+
+
 
 
         if params.get('dev_time') is not None:
@@ -461,7 +472,7 @@ async def config(request):
 async def control(request):
     
     params = request.args #request args from GET
-    print("params from GET control", params)
+    
 
     if 'wifi' in params: #fetch(`/config.json?wifi=${wifi_mode}&ssid=${params['ssid']}&ssid_pass=${params['ssid_pass']}`);
        
@@ -482,7 +493,7 @@ async def control(request):
              json.dump(settings, input)
     
     if "auto_mode" not in params:
-        #print("return no auto ")
+      
         return Response(body="wrong parameters passed")
            
 
@@ -545,7 +556,7 @@ async def shutdown(request):
 
 async def main():
 
-    task1 = asyncio.create_task(app.start_server(port=80, debug=True))
+    task1 = asyncio.create_task(app.start_server(port=80, debug=False))
     task2 = asyncio.create_task(writeLog())
     task3 = asyncio.create_task(deviceControl())
     task4 = asyncio.create_task(emergencyDeviceControl())
