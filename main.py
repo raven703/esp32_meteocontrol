@@ -22,7 +22,32 @@ display = SSD1306_I2C(128, 32, i2c) #init oled driver
 Request.max_content_length = 1024 * 1024
 Request.max_body_length = 1024 * 1024
 
+def setTime():
+    url = "http://worldtimeapi.org/api/timezone/Europe/Moscow"
     
+    try:
+        response = urequests.get(url)
+        datetime_str = str(response.json()["datetime"])
+        year = int(datetime_str[0:4])
+        month = int(datetime_str[5:7])
+        day = int(datetime_str[8:10])
+        hour = int(datetime_str[11:13])
+        minute = int(datetime_str[14:16])
+        second = int(datetime_str[17:19])
+        subsecond = int(round(int(datetime_str[20:26]) / 10000))
+
+        rtc.datetime((year, month, day, 0, hour, minute, second, subsecond))
+        #date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+        #time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
+    except OSError:
+        print("error in internet connection")
+        print("Time is not set, using zero defaults")
+        rtc.datetime((2022, 1, 1, 0, 1, 1, 1, 1))
+def getRtcTime():
+    date_str = "{2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+    time_str = "{4:02d}:{5:02d}".format(*rtc.datetime())
+    return [date_str, time_str]    
+setTime()
 
 class stream(): #async generator for server side events
     def __init__(self):
@@ -35,8 +60,11 @@ class stream(): #async generator for server side events
                      'device2':0,
                      'auto':0 },
          'Names': {'device1_name': 'noname1',
-                   'device2_name': 'noname2'}            
-                     }
+                   'device2_name': 'noname2'},
+         'Time': {0},
+         'Date': {0}
+         }
+
         with open("config.json", "r") as json_data: #load config from json file and read names for devices
              self.config = json.load(json_data)
         self.data['Names']['device1_name'] = self.config['device1_name']
@@ -73,6 +101,8 @@ class stream(): #async generator for server side events
            #print('! exception ! HUM Error')
            self.hum = gy21.LAST_VALUE_HU 
 
+        date, current_time = getRtcTime()
+
         self.soil = soilMeter.read() / 10
         
         self.data['Sensors']['hum'] = self.hum
@@ -81,42 +111,18 @@ class stream(): #async generator for server side events
         
         self.data['Control']['device1'] = device1.running()
         self.data['Control']['device2'] = device2.running()
+        self.data['Time'] = current_time
+        self.data['Date'] = date
         await asyncio.sleep(1)
         return f"data: {json.dumps(self.data)}" + "\n\n"
 
 
-def setTime():
-    url = "http://worldtimeapi.org/api/timezone/Europe/Moscow"
-    
-    try:
-        response = urequests.get(url)
-        datetime_str = str(response.json()["datetime"])
-        year = int(datetime_str[0:4])
-        month = int(datetime_str[5:7])
-        day = int(datetime_str[8:10])
-        hour = int(datetime_str[11:13])
-        minute = int(datetime_str[14:16])
-        second = int(datetime_str[17:19])
-        subsecond = int(round(int(datetime_str[20:26]) / 10000))
 
-        rtc.datetime((year, month, day, 0, hour, minute, second, subsecond))
-        #date_str = "Date: {2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
-        #time_str = "Time: {4:02d}:{5:02d}:{6:02d}".format(*rtc.datetime())
-    except OSError:
-        print("error in internet connection")
-        print("Time is not set, using zero defaults")
-        rtc.datetime((2022, 1, 1, 0, 1, 1, 1, 1))
-        
-
-def getRtcTime():
-    date_str = "{2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
-    time_str = "{4:02d}:{5:02d}".format(*rtc.datetime())
-    return [date_str, time_str]
         
         
 # setup webserver
 app = Microdot()
-setTime()
+
 
 # 
 gy21 = HTU21D(22,21)  #take temp and hum from sensor # HTU21D(scl, sda)

@@ -7,56 +7,60 @@
         <meta name="author" content="" />
         <title>GrowBox CS 0.9.5</title>
 
-      
-        <!-- Bootstrap
-        
-        -->
+
         <script src="javascript2.js"></script>
-        <link href="\static\bootstrap.min.css" rel="stylesheet" />
-        <link href="\static\main.css" rel="stylesheet" />
+<!--        <link href="\static\bootstrap.min.css" rel="stylesheet" />-->
+        <link href="main.css" rel="stylesheet" />
        
     </head>
 
     <body>
        
-        <header class="d-flex justify-content-center bg-info">
-            <h1>Grow CS v.0.9.2</h1>
-          </header>
+      <header class="d-flex bg-info">
+        <div class="">
+           <div class="datetime"><b>Date:</b> <span id="date">12.12.22</span> </div>
+           <div class="datetime"><b>Time:</b> <span id="time">00 hr : 00 min</span> </div>
+        </div>
+         
+
+          <div class="d-header-h1">
+             <h1>Grow CS v.0.9.2</h1>
+            
+            </div>
+
+      </header>
+
       
           
      
 
 
-<div class = "d-flex justify-content-center">
-    <div class="d-flex flex-column">
-                
-                
+<div class = "d-flex ">
+               
                   <div class="card shadow-sm mb-1 bg-white rounded text-center">
                     <div class="card-body">
                       <h5 class="card-title">Sensor Temp, C</h5>
-                      <p id="temperature" class="card-text fs-2">temperature</p>
-                    </div>
-                  </div>
-                  
-            
-                
-                  <div class="card shadow-sm mb-1 bg-white rounded text-center">
-                    <div class="card-body">
-                     <h5 class="card-title">Sensor humid, RH</h5>
-                     <p id="humidity" class="card-text fs-2">humidity</p>
-                  
-                    </div>
-                  </div>
-                
-            
-                
-                  <div class="card shadow-sm mb-1 bg-white rounded text-center">
-                    <div class="card-body">
-                     <h5 class="card-title">Soil humid, RSH</h5>
-                     <p id="soil_hum" class="card-text fs-2">soil_hum</p>
+                      <p id="temperature" class="card-text fs-2">temp</p>
                     </div>
                   </div>
 
+                  <div class="card shadow-sm mb-1 bg-white rounded text-center">
+                    <div class="card-body">
+                     <h5 class="card-title">Sensor humid, RH</h5>
+                     <p id="humidity" class="card-text fs-2">hum</p>
+                  
+                    </div>
+                  </div>
+      
+                  <div class="card shadow-sm mb-1 bg-white rounded text-center">
+                    <div class="card-body">
+                     <h5 class="card-title">Soil humid, RSH</h5>
+                     <p id="soil_hum" class="card-text fs-2">soil</p>
+                    </div>
+                  </div>
+</div>   
+
+<div class = "d-flex ">
                   <div class="card shadow-sm bg-white rounded text-center">
                     <div class="card-body">
                      <h5 id= "device1_name" class="card-title">Device 1</h5>
@@ -74,18 +78,18 @@
                        <button class="button" id="device_2_on" onclick="control('device2','ON')">ON</button>
                     <button class="button" id="device_2_off" onclick="control('device2','OFF')">OFF</button>
                     </div>
-                 
-                  </div> 
-               
-    </div>
+                 </div> 
+</div>            
+    
+<div class = "divider">
 
- <div class="divider"></div>
-    <div class="d-flex flex-row ">
+</div>
+     <div class="d-flex d-row d-wrap ">
 
             <div class="space">
             <div class="card shadow-sm p-1 mb-1 bg-white rounded text-center">
                     <div class="card-body">
-                      <h4 class="card-title ">Sensor treshold</h4>
+                      <h4 class="card-title ">Sensor threshold</h4>
                       <form  id="grow_box_settings">
                 
                         <div class="form-outline mb-4">
@@ -119,30 +123,6 @@
                     </div>
             </div>
             </div>
-           
-            <div class="space">
-           <div class="card shadow-sm p-1 mb-1 bg-white rounded text-center">
-                <div class="card-body">
-                  <h4 class="card-title">Device name</h4>
-                 
-                  <form id="device_name">
-            
-                    <div class="form-outline mb-4">
-                      
-                        <label class="form-label" for="device_name1">Device 1</label>
-                         <input type="text" id="device1_name" name="device1_name" class="form-control"> <br>
-                    
-                        <label class="form-label" for="device_name2">Device 2</label>
-                    
-                         <input type="text" id="device2_name" name="device2_name" class="form-control"> <br>
-                        <br>
-                        
-                        <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
-                    </div>
-                      </form>
-                </div>
-            </div>
-            </div> 
 
             <div class="space">
             <div class="card shadow-sm p-1 mb-1 bg-white rounded text-center">
@@ -175,10 +155,36 @@
                       </form>
                 </div>
               </div>
-            </div>    
+            </div>               
+
+            <div class="space">
+           <div class="card shadow-sm p-1 mb-1 bg-white rounded text-center">
+                <div class="card-body">
+                  <h4 class="card-title">Device name</h4>
+                 
+                  <form id="device_name">
+            
+                    <div class="form-outline mb-4">
+                      
+                        <label class="form-label" for="device_name1">Device 1</label>
+                         <input type="text" id="device1_name" name="device1_name" class="form-control"> <br>
+                    
+                        <label class="form-label" for="device_name2">Device 2</label>
+                    
+                         <input type="text" id="device2_name" name="device2_name" class="form-control"> <br>
+                        <br>
+                        
+                        <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
+                    </div>
+                      </form>
+                </div>
+            </div>
+            </div> 
+
+ 
     </div>      
 
-</div>
+
                    
         
   

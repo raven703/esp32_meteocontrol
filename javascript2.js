@@ -53,10 +53,14 @@ async function getDataFromServer() {
       let device2Status = data['Control']['device2'];
       let device1_name = data['Names']['device1_name'];
       let device2_name = data['Names']['device2_name'];
+      let time = data['Time'];
+      let date = data['Date'];
          
       document.getElementById("temperature").innerHTML = temper;
       document.getElementById("humidity").innerHTML = humid;
       document.getElementById("soil_hum").innerHTML = soil;
+      document.getElementById("time").innerHTML = time;
+      document.getElementById("date").innerHTML = date;
         
       document.getElementById("device1_name").innerHTML = device1_name;
       document.getElementById("device2_name").innerHTML = device2_name;
