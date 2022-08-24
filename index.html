@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>GrowBox CS 0.9.5</title>
+        <title>GrowBox CS 0.9.6</title>
 
 
         <script src="javascript2.js"></script>
@@ -24,7 +24,7 @@
          
 
           <div class="d-header-h1">
-             <h1>Grow CS v.0.9.2</h1>
+             <h1>Grow CS v.0.9.6</h1>
             
             </div>
 
@@ -91,28 +91,37 @@
             <div class="card shadow-sm p-1 mb-1 bg-white rounded text-center">
                     <div class="card-body">
                       <h4 class="card-title ">Sensor threshold</h4>
-                      <form  id="grow_box_settings">
+                      <form id="grow_box_settings">
                 
-                        <div class="form-outline mb-4">
+                        <div class="form-outline  d-flex-sensor">
+                    <div>
                       <label class="form-label" for="temp_max">Temp, C, MAX</label>
                       <input type="number" required="required" id="temp_max" name="temper" class="form-control"> 
-                      <br>
+                    </div>
+                    
+                    <div>
                       <label class="form-label" for="hum_low">Humidity LOW</label>
                       <input type="number" required="required" id="hum_low" name="humid_low" class="form-control"> 
-                      <br>
+                    </div>
+                      
+                    <div>
                       <label class="form-label" for="hum_max">Humidity MAX</label>
                       <input type="number" required="required" id="hum_max" name="humid_high" class="form-control" > 
-                      <br>
+                    </div>
+                    
+                    <div>
                       <label class="form-label" for="soil_meter">Soil meter</label>
                       <input type="number" required="required" id="soil_meter" name="soil" class="form-control" > <br>
-                   
+                    </div>
                 
-                     <label class="form-check-label" for="autoMode">Auto mode</label>
+                    <div>
+                    <label class="form-check-label" for="autoMode">Auto mode</label>
                      <input class="form-check-input" type="checkbox" id="autoMode" name="automode" onclick="autoModeCtrl()"/> 
-                       
+                    </div> 
+
                      <div class="p-1 ">       
-                      <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
-                </div>
+                      <input class="btn btn-primary btn-block " type="submit" value="Save settings" >
+                    </div>
                 
                      </div>
                       
@@ -130,7 +139,7 @@
                 <div class="card-body">
                   <h4 class="card-title">WiFi setup</h4>
                  
-                  <form id="wifi_setup">
+                  <form id="wifi_setup" class = "d-flex-sensor">
             
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="wifi_mode" id="station_mode"/>
@@ -142,16 +151,16 @@
                       <label class="form-check-label" for="point_mode"> AP mode </label>
                     </div>
             
-                   <div class="form-outline mb-4">
+                   <div class="form-outline d-flex-sensor">
                       
                         <label class="form-label" for="ssid_name">SSID Name</label>
-                        <input type="text" required="required" id="ssid" name="ssid" class="form-control" > <br>
+                        <input type="text" required="required" id="ssid" name="ssid" class="form-control" >
                     
                         <label class="form-label" for="ssid_pass">SSID Password</label>
-                        <input type="text" required="required" id="ssid_pass" name="ssid_pass" class="form-control" > <br>
+                        <input type="password" required="required" id="ssid_pass" name="ssid_pass" class="form-control" >
                         <br>
                         
-                        <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
+                        <input class="btn btn-primary btn-block " type="submit" value="Save settings" >
                     </div>
                       </form>
                 </div>
@@ -165,7 +174,7 @@
                  
                   <form id="device_name">
             
-                    <div class="form-outline mb-4">
+                    <div class="form-outline ">
                       
                         <label class="form-label" for="device_name1" >Device 1</label>
                          <input type="text" required="required" id="device1_name" name="device1_name" class="form-control"> <br>
@@ -181,14 +190,14 @@
                         </div>
                         <div>
                         <label class="form-label" for="date">Date</label>
-                        <input type="date" required="required" id="time" name="date" class="form-control"> 
+                        <input type="date" required="required" id="date" name="date" class="form-control"> 
                         
                       </div>
                       </div>
 
 
                         
-                        <input class="btn btn-primary btn-block mb-4" type="submit" value="Save settings" >
+                        <input class="btn btn-primary btn-block " type="submit" value="Save settings" >
                     </div>
                       </form>
                 </div>

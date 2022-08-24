@@ -41,8 +41,7 @@ async function getDataFromServer() {
   
       data = JSON.parse(event.data);
   
-          // console.log(data['Sensors']['hum']);
-      // console.log(data['Control']);
+   
       
       // get sensors value from SSE
       let temper = data['Sensors']['temp'];
@@ -156,15 +155,14 @@ function convertFormData(formData) {
       event.preventDefault()
       let wifi_mode='false'
       params = convertFormData(new FormData(wifi_setup));
-      //console.log(params['ssid'])
-      //console.log(params['ssid_pass'])
+  
   
       if (document.getElementById('station_mode').checked) {
-          console.log('staion mode selected');
+      
           wifi_mode = 'station';
       }
       else {
-          console.log('point mode selected');
+        
           wifi_mode = 'point';
       }
       
@@ -178,6 +176,9 @@ function convertFormData(formData) {
   async function show_config_data () {
      let response = await fetch("config.json"); // load config from server
      let config = await response.json();
+
+     let boot_ini = await fetch('boot_ini.json');
+     let wifi = await boot_ini.json();
   
      sessionStorage.setItem('temper', config['temper'])
      sessionStorage.setItem('hum_low', config['humid'][0]);
@@ -193,6 +194,18 @@ function convertFormData(formData) {
       document.getElementById('soil_meter').value = config['soil'];
       document.getElementById('device1_name').value = config['device1_name'];
       document.getElementById('device2_name').value = config['device2_name'];
+      document.getElementById('ssid').value = wifi['SSID']
+
+      if (wifi['DEFAULT_WIFI_MODE'] == 'station') {
+        document.getElementById('station_mode').checked = true
+        document.getElementById('point_mode').checked = false
+
+      } else {
+        document.getElementById('point_mode').checked = true
+        document.getElementById('station_mode').checked = false
+      }
+
+
       if (config['auto'] == 'True') {
           document.getElementById("autoMode").checked = true;
       } else {

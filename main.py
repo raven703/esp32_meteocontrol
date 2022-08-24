@@ -508,6 +508,11 @@ async def control(request):
 async def log(request):
     return send_file('log.txt')
 
+    
+@app.route('/boot_ini.json')
+async def log(request):
+    return send_file('boot_ini.json')
+
 @app.route('/javascript2.js')
 async def log(request):
     return send_file('javascript2.js')
