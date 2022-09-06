@@ -375,6 +375,7 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                     if DEBUG: print("starting")
                     device2.periodStartTime = time.time()
                     device2.start()
+                    device2.lastTime = getRtcTime()
                     with open("log.txt", "w") as output:
                         output.write(f'Last time device2 started: {getRtcTime()} \n')
 
@@ -458,6 +459,8 @@ async def config(request):
             date, time = getRtcTime()
             config_data['dev_time']=time
             config_data['dev_date']=f'{date[-4::]}-{date[3:5]}-{date[0:2]}' #convert to datetime notation yy-mm-dt
+        
+        config_data['last_time'] = device2.lastTime # last time device was active
        
         with open ("config.json", "w+") as file:
             json.dump(config_data, file) 

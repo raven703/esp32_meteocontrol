@@ -53,6 +53,7 @@ class motorDevice():
     isTimerSet = False
     startTime = 0
     periodStartTime = 0
+    lastTime = 0
     
     def __init__(self, pin_number, name) -> None:
 
@@ -61,6 +62,7 @@ class motorDevice():
         self.pinControl.off()
         self.name = name
         self.periodStartTime = time.time()
+        self.lastTime = 0
         
         pass
 
@@ -68,6 +70,7 @@ class motorDevice():
         #print("start in pin = ", self.pinNumber)
         self.startTime = time.time()
         self.pinControl.on()
+        
         if self.pinControl.value() == 1:
             return True
         else:

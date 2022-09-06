@@ -199,6 +199,7 @@ function convertFormData(formData) {
       document.getElementById('ssid').value = wifi['SSID']
       document.getElementById('run_time').value = config['dev2_runtime']
       document.getElementById('period_time').value = Number(config['dev2_period']) / 60
+      document.getElementById('lta').innerHTML = config['last_time']
 
 
       if (wifi['DEFAULT_WIFI_MODE'] == 'station') {
