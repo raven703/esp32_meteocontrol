@@ -1,6 +1,6 @@
 import time
 
-from machine import Pin, Timer
+from machine import Pin, Timer, RTC
 
 def get_free_space():
     import uos, esp
@@ -63,12 +63,12 @@ class motorDevice():
         self.name = name
         self.periodStartTime = time.time()
         self.lastTime = 0
-        
         pass
 
     def start(self):
         #print("start in pin = ", self.pinNumber)
         self.startTime = time.time()
+        self.lastTime = self.getRtcTime()
         self.pinControl.on()
         
         if self.pinControl.value() == 1:
@@ -96,7 +96,11 @@ class motorDevice():
         else:
             return False
 
-
+    def getRtcTime(self):
+        rtc = RTC()
+        date_str = "{2:02d}.{1:02d}.{0:4d}".format(*rtc.datetime())
+        time_str = "{4:02d}:{5:02d}".format(*rtc.datetime())
+        return [date_str, time_str] 
     
     def value(self):
         return self.pinControl.value()

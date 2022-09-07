@@ -1,1 +1,1 @@
-{"device1_name": "test133", "device2_name": "test24488", "temper": "28", "auto": "False", "humid": ["55", "60"], "soil": "180", "lamp": 0}
+{"humid": ["55", "60"], "soil": 180, "last_time": 0, "device2_name": "PUMP", "dev2_runtime": 10, "dev_date": "2022-09-06", "temper": "28", "auto": "True", "dev_time": "13:34", "lamp": 0, "dev2_period": 18000, "device1_name": "FAN"}

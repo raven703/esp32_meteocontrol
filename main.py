@@ -248,6 +248,7 @@ async def emergencyDeviceControl(): #counter for emerg shutdown DEVICE1 or DEVIC
         if device2.running():
             time_now = time.time()
             if DEBUG: print('Device2 autooff in: ', DEVICE2_TIMER - round(time_now - device2.startTime))
+
             
             if time_now - device2.startTime > DEVICE2_TIMER:
                 if DEBUG: print('time reached')
@@ -287,7 +288,6 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
 
     
     while True: 
-  
         
         try:
             temper = round(gy21.temperature)
@@ -366,16 +366,18 @@ async def deviceControl(): #control for device1 and device2. Can use auto contro
                 #write_request = True
  
             if soilData > autoModeCtrl.th_soil:
-                print("raw soil sensor", soilMeter.read(), "ALERT NEED WATER !!!!")
                 time_now = time.time()
-          
+
+                if DEBUG: print("raw soil sensor", soilMeter.read(), "ALERT NEED WATER !!!!")
+                          
                 if time_now - device2.periodStartTime < DEVICE2_PERIOD_TIMER:
                     if DEBUG: print('auto device2, waiting to start', DEVICE2_PERIOD_TIMER - (time_now - device2.periodStartTime))
+
                 elif time_now - device2.periodStartTime > DEVICE2_PERIOD_TIMER:
                     if DEBUG: print("starting")
                     device2.periodStartTime = time.time()
                     device2.start()
-                    device2.lastTime = getRtcTime()
+                    
                     with open("log.txt", "w") as output:
                         output.write(f'Last time device2 started: {getRtcTime()} \n')
 
@@ -459,6 +461,8 @@ async def config(request):
             date, time = getRtcTime()
             config_data['dev_time']=time
             config_data['dev_date']=f'{date[-4::]}-{date[3:5]}-{date[0:2]}' #convert to datetime notation yy-mm-dt
+
+
         
         config_data['last_time'] = device2.lastTime # last time device was active
        
@@ -468,8 +472,11 @@ async def config(request):
         return send_file('config.json')
     
     else:
-        
-        return send_file('config.json')
+        with open("config.json", "r") as file:
+            config_data = json.load(file)
+            config_data['last_time'] = device2.lastTime
+
+        return config_data
 
 
 @app.route('/control', methods=['GET', 'POST'])
